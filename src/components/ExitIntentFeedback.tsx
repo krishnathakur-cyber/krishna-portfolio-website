@@ -125,7 +125,28 @@ export default function ExitIntentFeedback() {
         setIsOpen(false);
       }, 3000);
     } catch (err: any) {
-      setErrorText(err?.message || 'Transaction fault. Storing locally.');
+      console.warn('⚠️ Server feedback submission failed, falling back to local storage cache:', err?.message || err);
+      try {
+        const cachedFeedback = JSON.parse(localStorage.getItem('krishna_portfolio_local_feedback') || '[]');
+        cachedFeedback.push({
+          rating,
+          liked,
+          improvement,
+          recommend,
+          createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('krishna_portfolio_local_feedback', JSON.stringify(cachedFeedback));
+        localStorage.setItem('portfolio_feedback_given', 'true');
+        
+        // Show success screen for local fallback mode
+        setHasSubmitted(true);
+        setTimeout(() => {
+          setIsOpen(false);
+        }, 3000);
+      } catch (cacheErr) {
+        console.error('❌ Failed to cache feedback in local storage:', cacheErr);
+        setErrorText(err?.message || 'Transaction fault. Storing locally failed.');
+      }
     } finally {
       setIsSending(false);
     }

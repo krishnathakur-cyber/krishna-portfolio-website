@@ -173,15 +173,25 @@ export default function AdminDashboard({ onClose }: { onClose: () => void }) {
     setLoginError('');
 
     try {
-const res = await fetch('/api/admin/login', {
+      const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username: username.trim(), password })
       });
 
-      const data = await res.json();
+      let data: { token?: string; error?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error('Login service returned an invalid response.');
+      }
+
       if (!res.ok) {
         throw new Error(data.error || 'Server rejected credentials.');
+      }
+
+      if (!data.token) {
+        throw new Error('Login succeeded but no access token was returned.');
       }
 
       sessionStorage.setItem('portfolio_admin_token', data.token);
@@ -251,6 +261,11 @@ const res = await fetch('/api/admin/login', {
               <p className="text-xs text-gray-400">
                 Unlock telemetry feedback logs & visitor dashboards.
               </p>
+              <p className="text-[10px] text-gray-500 pt-1">
+                Use your <span className="font-mono text-gray-400">ADMIN_USERNAME</span> and{' '}
+                <span className="font-mono text-gray-400">ADMIN_PASSWORD</span> from .env
+                (also accepts <span className="font-mono text-gray-400">krishna</span> or your owner email).
+              </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -262,7 +277,7 @@ const res = await fetch('/api/admin/login', {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. admin"
+                  placeholder="ADMIN_USERNAME from .env"
                   className="w-full px-4 py-3 border border-gray-800 bg-slate-900/40 rounded-xl text-xs sm:text-sm text-gray-200 focus:outline-none focus:border-violet-500"
                 />
               </div>

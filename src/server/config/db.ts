@@ -1,12 +1,18 @@
-// import mongoose from 'mongoose';
+import mongoose from "mongoose"
+import dns from 'dns';
 
-import mongoose from "mongoose";
+// Force public DNS resolvers to handle Atlas SRV queries if the local DNS server is misconfigured/refuses SRV lookups
+try {
+  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+} catch (e) {
+  console.warn('⚠️ Failed to set public DNS servers for Node process:', e);
+}
 
-// // Configure Mongoose options at module initialization time.
-// // Disabling bufferCommands ensures queries fail immediately with an error rather than hanging
-// // if the database connection failed or is not established.
-mongoose.set("strictQuery", true);
-mongoose.set("bufferCommands", false);
+// Configure Mongoose options at module initialization time.
+// Disabling bufferCommands ensures queries fail immediately with an error rather than hanging
+// if the database connection failed or is not established.
+mongoose.set('strictQuery', true);
+mongoose.set('bufferCommands', false);
 
 let isConnected = false;
 let hasAttempted = false;
@@ -23,7 +29,7 @@ let fallbackStore: {
   sessions: [],
   messages: [],
   feedback: [],
-  admins: [],
+  admins: []
 };
 
 export function getFallbackStore() {
@@ -48,10 +54,9 @@ export async function connectDB() {
   }
 
   const uri = process.env.MONGODB_URI;
-  const dbName = process.env.MONGODB_DBNAME || "";
   if (!uri) {
     console.warn(
-      "⚠️ MONGODB_URI is not set in environment variables. Falling back to robust in-memory transient data store for preview mode.",
+      '⚠️ MONGODB_URI is not set in environment variables. Falling back to robust in-memory transient data store for preview mode.'
     );
     hasAttempted = true;
     return false;
@@ -59,24 +64,19 @@ export async function connectDB() {
 
   connectionPromise = (async () => {
     try {
-      const connectionString = dbName ? `${uri}/${dbName}` : uri;
-      const connectionInstance = await mongoose.connect(connectionString, {
-        connectTimeoutMS: 5000,
-        serverSelectionTimeoutMS: 5000,
+      console.log('🔌 Initiating authentication sequence to MongoDB Atlas...');
+      await mongoose.connect(uri, {
+        dbName: process.env.MONGODB_DBNAME || 'default_db',
+        connectTimeoutMS: 5000, // Shortened to fail fast and free up the event loop
+        serverSelectionTimeoutMS: 5050,
       });
-
       isConnected = true;
       hasAttempted = true;
-      console.log(
-        "✅ MongoDB connected successfully:",
-        connectionInstance.connection.host,
-      );
+      console.log('✅ Connected to MongoDB Atlas successfully.');
       return true;
-    } catch (error: any) {
-      console.error("❌ MongoDB connection error:", error?.message || error);
-      console.warn(
-        "⚠️ Falling back to in-memory transient data store for preview mode.",
-      );
+    } catch (err: any) {
+      console.error('❌ Failed to connect to MongoDB Atlas:', err?.message || err);
+      console.warn('⚠️ Falling back to robust in-memory transient data store.');
       hasAttempted = true;
       return false;
     } finally {
@@ -86,27 +86,3 @@ export async function connectDB() {
 
   return connectionPromise;
 }
-
-// connectionPromise = (async () => {
-//     try {
-//       console.log('🔌 Initiating authentication sequence to MongoDB Atlas...');
-//       await mongoose.connect(uri, {
-//         dbName: process.env.MONGODB_DBNAME || 'default_db',
-//         connectTimeoutMS: 5000, // Shortened to fail fast and free up the event loop
-//         serverSelectionTimeoutMS: 5000,
-//       });
-//       isConnected = true;
-//       hasAttempted = true;
-//       console.log('✅ Connected to MongoDB Atlas successfully.');
-//       return true;
-//     } catch (err: any) {
-//       console.error('❌ Failed to connect to MongoDB Atlas:', err?.message || err);
-//       console.warn('⚠️ Falling back to robust in-memory transient data store.');
-//       hasAttempted = true;
-//       return false;
-//     } finally {
-//       connectionPromise = null;
-//     }
-//   })();
-
-//   return connectionPromise;

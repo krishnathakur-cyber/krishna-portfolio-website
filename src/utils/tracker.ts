@@ -73,7 +73,8 @@ async function syncSessionUpdate(finalExit = false) {
   try {
     // Keep Beacon alive or submit standard sync
     if (finalExit && navigator.sendBeacon) {
-      navigator.sendBeacon('/api/update-session', JSON.stringify(payload));
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      navigator.sendBeacon('/api/update-session', blob);
     } else {
       await fetch('/api/update-session', {
         method: 'POST',

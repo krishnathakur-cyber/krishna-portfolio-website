@@ -243,6 +243,49 @@ html:not(.dark) {
   & .bg-violet-500\/20 {
     background-color: rgba(16, 185, 129, 0.25) !important;
   }
+
+  /* Overwrite background for dark blue elements (#0B0F19) like Hero and Contact sections in light mode */
+  & .bg-\[\#0B0F19\], 
+  & [class*="bg-[#0B0F19]"],
+  & section[id="hero"],
+  & section[id="contact"] {
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.03) 100%),
+      linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+      #FAFBF6 !important;
+    background-size: 100% 100%, 25px 25px, 25px 25px, auto !important;
+    color: #064E3B !important;
+    border-top: 1px solid rgba(16, 185, 129, 0.2) !important;
+  }
+
+  /* Overwrite background for scrolled navbar to make it clean, transparent light-green instead of dark blue */
+  & nav#main-nav.bg-\[\#0B0F19\]\/80 {
+    background-color: rgba(250, 251, 246, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.15) !important;
+  }
+
+  /* Overwrite background for dark blue footer element (#080B11) */
+  & .bg-\[\#080B11\], 
+  & [class*="bg-[#080B11]"],
+  & footer[id="footer"] {
+    background: #ECFDF5 !important;
+    border-top: 1px solid rgba(16, 185, 129, 0.2) !important;
+  }
+
+  /* Ensure white text remains white inside buttons, active tabs, and highlighted controls */
+  & button .text-white,
+  & button.text-white,
+  & a.bg-violet-600.text-white,
+  & .bg-gradient-to-r.text-white,
+  & .bg-emerald-600.text-white,
+  & .bg-rose-600.text-white,
+  & button[type="submit"] span,
+  & button[type="submit"] {
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+  }
 }
 
 /* Keyframe animations for bright hacker mode */

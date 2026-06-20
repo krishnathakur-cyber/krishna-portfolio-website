@@ -217,7 +217,7 @@ export default function Contact() {
                     <div>
                       <h4 className="font-mono text-[9px] tracking-widest uppercase text-emerald-400 font-bold leading-none">Locally Logged Submissions</h4>
                       <p className="text-xs sm:text-sm font-semibold text-gray-200 mt-1 leading-tight">
-                        {copiedEmail ? 'Copied' : submissionCount} Transmission{submissionCount > 1 ? 's' : ''} stored
+                        {submissionCount} Transmission{submissionCount > 1 ? 's' : ''} stored
                       </p>
                     </div>
                   </div>
